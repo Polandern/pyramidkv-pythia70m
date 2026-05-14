@@ -1,0 +1,19 @@
+{
+  "method": "pyramidkv",
+  "model_name": "/KV/models/pythia-70m",
+  "device": "cuda",
+  "prompt_tokens": 1536,
+  "generate_tokens": 128,
+  "kv_budget": 512,
+  "budget_mode": "pyramid",
+  "sink_tokens": 4,
+  "recent_tokens": 32,
+  "ttft_sec": 0.3287107553333044,
+  "tpot_sec": 0.006833398787421174,
+  "throughput_tok_per_sec": 146.34006167484125,
+  "elapsed_sec": 1.1100406665354967,
+  "peak_rss_mb": 1073.765625,
+  "peak_cuda_allocated_mb": 596.658203125,
+  "avg_cache_length": 384.0,
+  "generated_text": " ripe,\nmontcorn-\nmontpenhouse\nmontpen juice of\nmouth\nmouth\nmouth\nmouth of\nmouth of\nmouth of\nmouth of\nmouth of\nmouth.\nmouth of\nmouth.\nmouth.\nmouth.\nmouth.\nmouth.\nmouth.\nmouth.\nmouth.\nmouth.\nmouth.\nmouth.\nmouth.\nmouth.\nmouth.\nmouth.\nmouth.\n\nmouth.\n\nmouth.\nmouth.\n\n\n\n\n\n\nmouth.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+}

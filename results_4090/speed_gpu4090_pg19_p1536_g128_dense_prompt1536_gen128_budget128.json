@@ -1,0 +1,19 @@
+{
+  "method": "dense",
+  "model_name": "/KV/models/pythia-70m",
+  "device": "cuda",
+  "prompt_tokens": 1536,
+  "generate_tokens": 128,
+  "kv_budget": null,
+  "budget_mode": null,
+  "sink_tokens": null,
+  "recent_tokens": null,
+  "ttft_sec": 0.2658539842814207,
+  "tpot_sec": 0.005027969295042567,
+  "throughput_tok_per_sec": 198.88745163698022,
+  "elapsed_sec": 0.8797883726656437,
+  "peak_rss_mb": 985.09375,
+  "peak_cuda_allocated_mb": 410.23291015625,
+  "avg_cache_length": 1664.0,
+  "generated_text": ") which is\nthe most important of the sugar cane sugar cane sugar cane sugar\nbeing the most important of the sugar cane sugar cane sugar cane\nand the most important of the sugar cane sugar cane sugar cane sugar cane\nand the most important of the sugar cane sugar cane sugar cane\nand the most important of the sugar cane sugar cane sugar cane\nand the most important of the sugar cane sugar cane sugar cane\nand the most important of the sugar cane sugar cane sugar cane\nand the most important of the sugar cane sugar cane sugar cane\nand the most important of the sugar cane sugar cane sugar cane\nand the most important of"
+}

@@ -1,0 +1,20 @@
+{
+  "method": "pyramidkv",
+  "model_name": "/KV/models/pythia-70m",
+  "device": "cuda",
+  "prompt_tokens": 1536,
+  "generate_tokens": 128,
+  "kv_budget": 1536,
+  "budget_mode": "uniform",
+  "selection_strategy": "recent",
+  "sink_tokens": 4,
+  "recent_tokens": 32,
+  "ttft_sec": 0.265599912032485,
+  "tpot_sec": 0.006056499056285247,
+  "throughput_tok_per_sec": 165.1118890148643,
+  "elapsed_sec": 1.011171167716384,
+  "peak_rss_mb": 1029.27734375,
+  "peak_cuda_allocated_mb": 410.23291015625,
+  "avg_cache_length": 1536.0,
+  "generated_text": ") and the\npit (Boliglylobscanthamphylum) (Bomphalus) (Bomphalus) (Bomphalomphalomphalomphalomphalic) (Bomphalic) (Bomphalic) (Bomphalic) (Bomphalic)Bomphalomphalomphalomphalomphalomphalomphalomphalomphalomphalomphalomphalomphalomphalomphalomphalomphalomphalomphalomphalomphalomphalomphalomphalomphalomphalomphalomphalomphal"
+}

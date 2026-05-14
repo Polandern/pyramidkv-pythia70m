@@ -16,21 +16,35 @@ from src.pyramidkv.modeling import load_model_and_tokenizer
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Evaluate CPU-friendly streaming perplexity.")
+    parser = argparse.ArgumentParser(description="Evaluate streaming perplexity.")
     parser.add_argument("--method", choices=["dense", "pyramidkv"], default="dense")
     parser.add_argument("--model_name", default="EleutherAI/pythia-70m")
     parser.add_argument("--device", default="cpu")
+
     parser.add_argument("--sample_text", default=None)
     parser.add_argument("--dataset", default=None)
     parser.add_argument("--dataset_config", default=None)
     parser.add_argument("--split", default="test")
     parser.add_argument("--max_documents", type=int, default=1)
     parser.add_argument("--streaming", action="store_true")
+
     parser.add_argument("--max_tokens", type=int, default=256)
     parser.add_argument("--kv_budget", type=int, default=128)
     parser.add_argument("--budget_mode", choices=["pyramid", "uniform"], default="pyramid")
     parser.add_argument("--sink_tokens", type=int, default=4)
     parser.add_argument("--recent_tokens", type=int, default=32)
+
+    parser.add_argument(
+        "--selection_strategy",
+        choices=["attention", "recent"],
+        default="attention",
+        help=(
+            "KV selection strategy for pyramidkv. "
+            "'attention' uses the latest attention map; "
+            "'recent' avoids output_attentions and keeps sink + recent-biased tokens."
+        ),
+    )
+
     parser.add_argument("--out_dir", default="results")
     parser.add_argument("--run_name", default=None)
     return parser.parse_args()
@@ -40,7 +54,9 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     device = torch.device(args.device)
+
     model, tokenizer = load_model_and_tokenizer(args.model_name, args.device)
+
     text = load_text(
         sample_text=args.sample_text,
         dataset=args.dataset,
@@ -49,6 +65,7 @@ def main() -> None:
         max_documents=args.max_documents,
         streaming=args.streaming,
     )
+
     token_ids = tokenizer(text, return_tensors="pt").input_ids[:, : args.max_tokens].to(device)
     if token_ids.shape[1] < 2:
         raise ValueError("Need at least two tokens to compute perplexity.")
@@ -59,43 +76,64 @@ def main() -> None:
         mode=args.budget_mode,
     )
 
+    # Only the attention-based reproduction needs attention tensors.
+    # The recent strategy intentionally avoids output_attentions=True so that
+    # we can measure a lower-overhead KV compression ablation.
+    need_attn = args.method == "pyramidkv" and args.selection_strategy == "attention"
+
     past_key_values = None
     total_nll = 0.0
     total_targets = 0
-    cache_lengths = []
+    cache_lengths: list[float] = []
+
     started = time.perf_counter()
 
     iterator = range(token_ids.shape[1] - 1)
     for pos in tqdm(iterator, desc=f"ppl:{args.method}"):
         current = token_ids[:, pos : pos + 1]
         target = token_ids[:, pos + 1]
+
         model_inputs = dict(
             input_ids=current,
             past_key_values=past_key_values,
             use_cache=True,
-            output_attentions=args.method == "pyramidkv",
+            output_attentions=need_attn,
             return_dict=True,
         )
+
+        # Important:
+        # For dense decoding, absolute position_ids are safe and make the
+        # token-by-token perplexity calculation explicit.
+        #
+        # For compressed PyramidKV on GPT-NeoX/Pythia, manually passing
+        # absolute position_ids after physical KV deletion can trigger RoPE
+        # index overflow in Hugging Face's tuple-cache path. Therefore we let
+        # the model infer cache-local positions for the compressed-cache runs.
         if args.method == "dense":
             model_inputs["position_ids"] = torch.tensor([[pos]], device=device, dtype=torch.long)
+
         outputs = model(**model_inputs)
+
         logits = outputs.logits[:, -1, :]
         total_nll += float(F.cross_entropy(logits, target, reduction="sum").item())
         total_targets += int(target.numel())
+
         past_key_values = outputs.past_key_values
 
         if args.method == "pyramidkv":
             past_key_values = compress_past_key_values(
                 past_key_values,
-                outputs.attentions,
+                outputs.attentions if need_attn else None,
                 budgets=budgets,
                 sink_tokens=args.sink_tokens,
                 recent_tokens=args.recent_tokens,
             )
+
         cache_lengths.append(cache_stats(past_key_values).average_length)
 
     elapsed = time.perf_counter() - started
     ppl = math.exp(total_nll / max(1, total_targets))
+
     result = {
         "method": args.method,
         "model_name": args.model_name,
@@ -103,6 +141,9 @@ def main() -> None:
         "max_tokens": int(token_ids.shape[1]),
         "kv_budget": args.kv_budget if args.method == "pyramidkv" else None,
         "budget_mode": args.budget_mode if args.method == "pyramidkv" else None,
+        "selection_strategy": args.selection_strategy if args.method == "pyramidkv" else None,
+        "sink_tokens": args.sink_tokens if args.method == "pyramidkv" else None,
+        "recent_tokens": args.recent_tokens if args.method == "pyramidkv" else None,
         "nll": total_nll,
         "ppl": ppl,
         "tokens_evaluated": total_targets,
@@ -112,8 +153,13 @@ def main() -> None:
 
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
+
     run_name = args.run_name or args.method
-    out_file = out_dir / f"ppl_{run_name}_{args.method}_tokens{token_ids.shape[1]}_budget{args.kv_budget}.json"
+    out_file = (
+        out_dir
+        / f"ppl_{run_name}_{args.method}_tokens{token_ids.shape[1]}_budget{args.kv_budget}.json"
+    )
+
     out_file.write_text(json.dumps(result, indent=2), encoding="utf-8")
     print(json.dumps(result, indent=2))
 

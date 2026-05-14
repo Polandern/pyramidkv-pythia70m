@@ -1,0 +1,19 @@
+{
+  "method": "dense",
+  "model_name": "/KV/models/pythia-70m",
+  "device": "cuda",
+  "prompt_tokens": 1536,
+  "generate_tokens": 128,
+  "kv_budget": null,
+  "budget_mode": null,
+  "sink_tokens": null,
+  "recent_tokens": null,
+  "ttft_sec": 0.26043760776519775,
+  "tpot_sec": 0.004959112950018607,
+  "throughput_tok_per_sec": 201.64896627253628,
+  "elapsed_sec": 0.8657739628106356,
+  "peak_rss_mb": 1013.29296875,
+  "peak_cuda_allocated_mb": 410.23291015625,
+  "avg_cache_length": 1664.0,
+  "generated_text": " the \" Poet @-@ Sage \" by Chinese critics, while the \" Poet @-@ Sage \" by Chinese critics, while the \" Poet @-@ Sage \" by Chinese critics, while the \" Poet @-@ Sage \" by Chinese critics, while the \" Poet @-@ Sage \" by Chinese critics, while the \" Poet @-@ Sage \" by Chinese critics, while the \" Poet @-@ Sage \" by Chinese critics, while the \" Poet @-@ Sage \" by Chinese critics, while the \" Poet @-@ S"
+}

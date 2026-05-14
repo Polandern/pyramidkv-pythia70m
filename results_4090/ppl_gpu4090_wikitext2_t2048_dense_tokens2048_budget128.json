@@ -1,0 +1,13 @@
+{
+  "method": "dense",
+  "model_name": "/KV/models/pythia-70m",
+  "device": "cuda",
+  "max_tokens": 2048,
+  "kv_budget": null,
+  "budget_mode": null,
+  "nll": 7285.210136890411,
+  "ppl": 35.126972762271976,
+  "tokens_evaluated": 2047,
+  "elapsed_sec": 9.846561649814248,
+  "avg_cache_length": 1024.0
+}

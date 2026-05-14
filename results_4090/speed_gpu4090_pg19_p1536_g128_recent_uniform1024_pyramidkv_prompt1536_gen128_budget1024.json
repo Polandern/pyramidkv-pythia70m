@@ -1,0 +1,20 @@
+{
+  "method": "pyramidkv",
+  "model_name": "/KV/models/pythia-70m",
+  "device": "cuda",
+  "prompt_tokens": 1536,
+  "generate_tokens": 128,
+  "kv_budget": 1024,
+  "budget_mode": "uniform",
+  "selection_strategy": "recent",
+  "sink_tokens": 4,
+  "recent_tokens": 32,
+  "ttft_sec": 0.2765852212905884,
+  "tpot_sec": 0.00579461784218438,
+  "throughput_tok_per_sec": 172.57393450868764,
+  "elapsed_sec": 0.9722022339701653,
+  "peak_rss_mb": 1009.703125,
+  "peak_cuda_allocated_mb": 410.23291015625,
+  "avg_cache_length": 1024.0,
+  "generated_text": " to which the first of the first of the first of the first of the first of the first of the first of the first of the first the first a few of the first a few of the first a few of the first a few of the first a few of the first of the first of the first of the first of the first of the first of the first of the first of the first a few of the first a few of the first a few of the first a few of the first a few of the first a few of the first a few of the first a few of the first a few of the first a few of the"
+}

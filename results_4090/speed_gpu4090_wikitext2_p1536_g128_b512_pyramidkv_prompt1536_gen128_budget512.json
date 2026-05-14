@@ -1,0 +1,19 @@
+{
+  "method": "pyramidkv",
+  "model_name": "/KV/models/pythia-70m",
+  "device": "cuda",
+  "prompt_tokens": 1536,
+  "generate_tokens": 128,
+  "kv_budget": 512,
+  "budget_mode": "pyramid",
+  "sink_tokens": 4,
+  "recent_tokens": 32,
+  "ttft_sec": 0.3230915516614914,
+  "tpot_sec": 0.006897462531924248,
+  "throughput_tok_per_sec": 144.98085279500907,
+  "elapsed_sec": 1.1141305081546307,
+  "peak_rss_mb": 1096.546875,
+  "peak_cuda_allocated_mb": 596.658203125,
+  "avg_cache_length": 384.0,
+  "generated_text": " his biography of his poetry magazine and his poetry He plagiar to his poetry magazine and his poetry He plagiar to his poetry magazine. He plagiaran He plagiaran He plagiaran He plagiaran He plagiaran He plagiaran He plagiaran He plagiaran He plagiaran He plagiaran he plagiaran \" He plagiaran he plagiaran He plagiaran \" He plagiaran He plagiaran. He plagiaran. He plagiaran. He plagiaran. He plagiaran. He plagiaran. He plagiaran. He plagiaran"
+}

@@ -27,32 +27,28 @@ def build_layer_budgets(
     num_layers: int,
     kv_budget: int,
     mode: str = "pyramid",
-    min_budget: int = 16,
+    min_budget: int = 32,
 ) -> list[int]:
-    """Build per-layer KV budgets.
-
-    The reproduction baseline uses a simple pyramid schedule: early layers keep
-    a smaller cache and deeper layers keep a larger cache. This makes the
-    layer-wise allocation explicit and easy to sweep.
-    """
-
-    if num_layers <= 0:
-        return []
-    kv_budget = max(1, int(kv_budget))
-    min_budget = max(1, int(min_budget))
-
-    if mode == "uniform" or num_layers == 1:
-        return [max(min_budget, kv_budget) for _ in range(num_layers)]
+    if mode == "uniform":
+        return [kv_budget for _ in range(num_layers)]
 
     if mode != "pyramid":
         raise ValueError(f"Unknown budget mode: {mode}")
 
+    # KVPress / PyramidKV-aligned schedule:
+    # lower / earlier layers keep more KV cache,
+    # higher / later layers keep less KV cache.
+    high = max(min_budget, kv_budget)
     low = max(min_budget, kv_budget // 2)
-    high = max(low, kv_budget)
+    low = min(low, high)
+
     budgets = []
     for layer_idx in range(num_layers):
         ratio = layer_idx / max(1, num_layers - 1)
-        budgets.append(int(round(low + ratio * (high - low))))
+        budget = int(round(high - ratio * (high - low)))
+        budget = max(1, budget)
+        budgets.append(budget)
+
     return budgets
 
 

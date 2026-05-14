@@ -1,0 +1,19 @@
+{
+  "method": "pyramidkv",
+  "model_name": "/KV/models/pythia-70m",
+  "device": "cuda",
+  "prompt_tokens": 1536,
+  "generate_tokens": 128,
+  "kv_budget": 256,
+  "budget_mode": "pyramid",
+  "sink_tokens": 4,
+  "recent_tokens": 32,
+  "ttft_sec": 0.3303683828562498,
+  "tpot_sec": 0.006811171260778792,
+  "throughput_tok_per_sec": 146.81762676536482,
+  "elapsed_sec": 1.1076375022530556,
+  "peak_rss_mb": 1077.23046875,
+  "peak_cuda_allocated_mb": 590.23291015625,
+  "avg_cache_length": 192.0,
+  "generated_text": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+}

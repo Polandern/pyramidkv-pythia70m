@@ -1,0 +1,19 @@
+{
+  "method": "pyramidkv",
+  "model_name": "/KV/models/pythia-70m",
+  "device": "cuda",
+  "prompt_tokens": 1536,
+  "generate_tokens": 128,
+  "kv_budget": 256,
+  "budget_mode": "pyramid",
+  "sink_tokens": 4,
+  "recent_tokens": 32,
+  "ttft_sec": 0.3022168632596731,
+  "tpot_sec": 0.0068670054752146825,
+  "throughput_tok_per_sec": 145.62388272578698,
+  "elapsed_sec": 1.091133976355195,
+  "peak_rss_mb": 1115.8125,
+  "peak_cuda_allocated_mb": 590.23291015625,
+  "avg_cache_length": 192.0,
+  "generated_text": " poetry poetry poetry poetry poetry poetry poetry poetry poetry poetry poetry poetry poetry poetry poetry poetry poetry poetry and poetry and poetry and poetry and poetry of poetry and poetry poetry poetry poetry poetry poetry poetry poetry poetry poetry and poetry poetry and poetry and poetry and poetry poems\nhe first character art. He plagic poetry of poetry of poetry of poetry and \" poetry of poetry, He plagiaran poetry of poetry and poetry of poetry, He plagiaru name \" He plagiaruquake of poetry of poetry of poetry of poetry, He plagic world of poetry, He plagicest of poetry, He plagiarigin poetry, he poetry, he"
+}

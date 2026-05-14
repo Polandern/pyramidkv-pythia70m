@@ -1,0 +1,13 @@
+{
+  "method": "pyramidkv",
+  "model_name": "/KV/models/pythia-70m",
+  "device": "cuda",
+  "max_tokens": 2048,
+  "kv_budget": 256,
+  "budget_mode": "pyramid",
+  "nll": 11813.656870007515,
+  "ppl": 320.9242502670688,
+  "tokens_evaluated": 2047,
+  "elapsed_sec": 12.523089747875929,
+  "avg_cache_length": 182.57767464582315
+}
