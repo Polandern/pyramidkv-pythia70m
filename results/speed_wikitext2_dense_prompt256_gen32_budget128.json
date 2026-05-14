@@ -1,0 +1,15 @@
+{
+  "method": "dense",
+  "model_name": "EleutherAI/pythia-70m",
+  "device": "cpu",
+  "prompt_tokens": 256,
+  "generate_tokens": 32,
+  "kv_budget": null,
+  "ttft_sec": 0.18319770000016433,
+  "tpot_sec": 0.012315293749907141,
+  "throughput_tok_per_sec": 81.19984957789092,
+  "elapsed_sec": 0.5577167999981612,
+  "peak_rss_mb": 639.0,
+  "avg_cache_length": 288.0,
+  "generated_text": " recurring role in the production of The Bill in 2007, a recurring role in the production of The Bill in 2008.\n\nReferences\n\nExternal links\n\n"
+}

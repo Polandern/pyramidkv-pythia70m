@@ -1,0 +1,15 @@
+{
+  "method": "pyramidkv",
+  "model_name": "EleutherAI/pythia-70m",
+  "device": "cpu",
+  "prompt_tokens": 256,
+  "generate_tokens": 32,
+  "kv_budget": 128,
+  "ttft_sec": 0.1623251999990316,
+  "tpot_sec": 0.012681471874998351,
+  "throughput_tok_per_sec": 78.8551999213522,
+  "elapsed_sec": 0.5547855000004347,
+  "peak_rss_mb": 650.734375,
+  "avg_cache_length": 96.0,
+  "generated_text": " Dr. James Bond's The Doctor's The Doctor's The Doctor's The Doctor's The Doctor's The Doctor's The Doctor's The Doctor's The Doctor's"
+}

@@ -1,0 +1,13 @@
+{
+  "method": "dense",
+  "model_name": "EleutherAI/pythia-70m",
+  "device": "cpu",
+  "max_tokens": 16,
+  "kv_budget": null,
+  "budget_mode": null,
+  "nll": 61.643208384513855,
+  "ppl": 60.9191287044673,
+  "tokens_evaluated": 15,
+  "elapsed_sec": 0.19453690000227652,
+  "avg_cache_length": 8.0
+}

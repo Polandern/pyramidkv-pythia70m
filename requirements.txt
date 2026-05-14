@@ -1,0 +1,7 @@
+torch>=2.1
+transformers==4.44.2
+datasets>=2.18
+accelerate>=0.28
+psutil>=5.9
+tqdm>=4.66
+fsspec==2026.2.0

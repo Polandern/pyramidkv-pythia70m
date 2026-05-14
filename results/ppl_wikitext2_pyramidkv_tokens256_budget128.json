@@ -1,0 +1,13 @@
+{
+  "method": "pyramidkv",
+  "model_name": "EleutherAI/pythia-70m",
+  "device": "cpu",
+  "max_tokens": 256,
+  "kv_budget": 128,
+  "budget_mode": "pyramid",
+  "nll": 1421.3573114741594,
+  "ppl": 263.4728274613287,
+  "tokens_evaluated": 255,
+  "elapsed_sec": 2.3726893000020937,
+  "avg_cache_length": 77.1888888888889
+}
