@@ -8,6 +8,32 @@ Language Models". It contains a dense baseline and a PyramidKV-style KV cache
 compression baseline. The default commands are intentionally small so they can
 run on a CPU-only laptop; increase the sequence lengths when running on a GPU.
 
+## Method Summary
+
+We reproduce a PyramidKV-style KV-cache compression method for autoregressive
+inference. The dense baseline keeps all previous key/value states. The
+compressed variant assigns a fixed KV budget to each layer and retains three
+types of tokens: attention sink tokens, recent tokens, and historical tokens
+with high attention scores from the latest attention map. The model parameters
+are unchanged, so the method is training-free.
+
+The implementation is intended to verify the KV compression pipeline and provide
+reproducible baselines for later GPU experiments. The CPU results below show
+that the retained KV length is reduced, but they are not claimed as final
+acceleration results.
+
+## Repository Structure
+
+- `src/pyramidkv/`: PyramidKV cache compression implementation.
+- `eval_ppl.py`: perplexity evaluation script.
+- `benchmark_speed.py`: generation speed benchmark script.
+- `run_baseline.py`: dense baseline entry point.
+- `run_pyramidkv.py`: PyramidKV entry point.
+- `run_cpu_reproduction.ps1`: one-command CPU reproduction script.
+- `samples/`: lightweight WikiText-2 and PG-19 evaluation samples.
+- `results/`: JSON outputs for reported experiments.
+- `scripts/`: helper scripts for dataset export and result summarization.
+
 ## Setup
 
 ```powershell
@@ -100,11 +126,29 @@ does not improve throughput because the Python-level attention collection and
 cache compression overhead dominate. This CPU run is therefore a reproducibility
 check rather than a final performance claim.
 
-Implementation note: the current Hugging Face GPT-NeoX legacy tuple cache does
-not expose sparse absolute cache positions. For CPU reproduction, PyramidKV uses
-cache-local positions after compression so the baseline remains runnable with
-`transformers==4.44.2`. GPU follow-up experiments should revisit this with a
-cache implementation that supports sparse RoPE positions.
+## Limitations
+
+The reported results are CPU-only reproduction results with short sequence
+lengths. They verify that the implementation is runnable and that KV length is
+reduced, but they should not be interpreted as final acceleration results. The
+current Hugging Face GPT-NeoX tuple-cache interface does not expose sparse
+absolute cache positions, so this implementation uses cache-local positions
+after compression. A GPU implementation with sparse RoPE-aware cache positions
+is needed for stronger performance claims.
+
+The PyramidKV perplexity is worse than the dense baseline in the reported CPU
+setting. This result is included for transparency and indicates that the current
+lightweight implementation is best viewed as a reproduction scaffold and
+diagnostic baseline before larger GPU experiments.
+
+## Conclusion
+
+The reproduced PyramidKV-style method reduces the average retained KV length
+from 288.00 to 96.00 during generation on the WikiText-2 CPU benchmark. However,
+throughput decreases slightly from 81.20 tok/s to 78.86 tok/s because the CPU
+setting is dominated by Python-side compression overhead. Therefore, the current
+repository demonstrates correctness and reproducibility of KV-cache compression,
+while larger GPU experiments are needed to evaluate real acceleration.
 
 ## Suggested Full Experiments
 
