@@ -60,14 +60,123 @@ output_attentions=True
 
 ---
 
+### 1.3 改进算法：SC-PyramidKV
+
+小组创新部分中，本仓库进一步实现了一个独立的 PyramidKV 改进版：
+**SC-PyramidKV**，即 Sensitivity-Calibrated PyramidKV。它不与
+StreamingLLM 或 SnapKV 融合，而是专门改进 PyramidKV 自身。
+
+SC-PyramidKV 的动机来自当前复现实验的失败分析：简单 attention top-k
+压缩在 Pythia/GPT-NeoX 上会造成明显 PPL 退化，且每 token 压缩带来较大
+Python 开销。因此，SC-PyramidKV 做了四个改动：
+
+1. **Layer sensitivity calibration**：先用一小段校准文本估计每层 attention
+   entropy 和 long-range attention mass。更敏感的层获得更多 KV budget。
+2. **Sensitivity-calibrated budget**：在 PyramidKV 的逐层预算基础上重新分配
+   budget，但保持总体预算规模相近。
+3. **Warmup + block-wise compression**：前若干 token 不压缩，之后每隔固定
+   interval 压缩一次，避免每 token 重建 KV cache。
+4. **Sink + recent + landmark retention**：保留 attention sink、最近窗口和
+   中间区域均匀 landmark tokens，比单纯 attention top-k 更稳定。
+
+相关文件：
+
+- `src/pyramidkv/sc_pyramidkv.py`
+- `eval_sc_pyramidkv.py`
+- `benchmark_sc_pyramidkv.py`
+- `run_sc_pyramidkv.py`
+
+GPU 运行示例：
+
+```bash
+python eval_sc_pyramidkv.py \
+  --run_name gpu4090_wikitext2_t2048_sc_b1024 \
+  --model_name $MODEL \
+  --sample_text samples/wikitext2_test.raw \
+  --max_tokens 2048 \
+  --kv_budget 1024 \
+  --recent_tokens 256 \
+  --warmup_tokens 1024 \
+  --compress_interval 128 \
+  --device cuda \
+  --out_dir results_sc
+
+python benchmark_sc_pyramidkv.py \
+  --run_name gpu4090_wikitext2_p1536_g128_sc_b1024 \
+  --model_name $MODEL \
+  --prompt_file samples/wikitext2_test.raw \
+  --prompt_tokens 1536 \
+  --generate_tokens 128 \
+  --kv_budget 1024 \
+  --recent_tokens 256 \
+  --warmup_tokens 1024 \
+  --compress_interval 128 \
+  --device cuda \
+  --out_dir results_sc
+```
+
+建议消融：
+
+- `--sensitivity_alpha 0`：去掉 sensitivity calibration；
+- `--budget_mode uniform`：去掉 PyramidKV layer-wise budget；
+- `--middle_strategy recent`：去掉 landmark tokens；
+- `--compress_interval 1`：退回每 token 压缩。
+
+### 1.4 单文件版 improved PyramidKV
+
+为了便于小组仓库集成，本仓库另外提供了一个单文件版本：
+
+```text
+improve_pyramidkv.py
+```
+
+它将模型加载、数据读取、PPL 评测、速度测试、KV 压缩逻辑和 CSV 写入都放在一个文件中，格式与组内其他方法实现保持一致。该文件主要用于后续小组项目中作为 `methods/improve_pyramidkv.py` 迁移。
+
+推荐运行命令：
+
+```bash
+python improve_pyramidkv.py \
+  --model_id $MODEL \
+  --dataset wikitext \
+  --wikitext_local_path samples/wikitext2_test.raw \
+  --split test \
+  --max_eval_tokens 2048 \
+  --max_context_tokens 1536 \
+  --max_new_tokens 128 \
+  --kv_budget 1536 \
+  --recent_tokens 512 \
+  --warmup_tokens 1536 \
+  --compress_interval 256 \
+  --sensitivity_alpha 0 \
+  --output_csv results/pyramidkv_improved_metrics.csv
+```
+
+当前 RTX 4090 上的 WikiText-2 单文件版结果如下：
+
+| Method | Dataset | Eval tokens | Context tokens | KV budget | PPL | Throughput (tok/s) | PPL Avg. KV | Speed Avg. KV |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| improved PyramidKV | WikiText-2 | 2048 | 1536 | 1536 | 74.63 | 204.84 | 863.92 | 1151.00 |
+
+这一结果说明：相比 attention-based PyramidKV 复现版本，改进版显著降低了 PPL 退化，并且在单文件评测脚本中取得了接近或略高于 Dense baseline 的生成吞吐。不过，PPL 仍然高于 Dense，因此该方法更适合作为“质量退化明显改善 + 保持一定 KV 压缩”的 PyramidKV 改进版本，而不是无损压缩方法。
+
+---
+
 ## 2. 仓库结构
 
 ```text
 PyramidKV/
+├── improve_pyramidkv.py        # 单文件版改进 PyramidKV，便于小组仓库集成
 ├── benchmark_speed.py          # 生成速度测试：TTFT、TPOT、throughput、显存
+├── benchmark_sc_pyramidkv.py   # SC-PyramidKV 速度测试 CLI 包装器
 ├── eval_ppl.py                 # PPL 测试
+├── eval_sc_pyramidkv.py        # SC-PyramidKV PPL 测试 CLI 包装器
+├── methods/
+│   ├── __init__.py
+│   ├── improve_pyramidkv.py    # 单文件版改进 PyramidKV：加载、评测、测速、写 CSV
+│   └── pyramidkv.py            # 小组框架形式的 PyramidKV/SC-PyramidKV 方法模块
 ├── run_baseline.py             # Dense baseline 快速入口
 ├── run_pyramidkv.py            # PyramidKV 快速入口
+├── run_sc_pyramidkv.py         # SC-PyramidKV 快速入口
 ├── run_cpu_reproduction.ps1    # CPU 复现实验脚本
 ├── requirements.txt
 ├── samples/
@@ -80,9 +189,11 @@ PyramidKV/
 │   └── pyramidkv/
 │       ├── cache.py            # KV budget 和 cache 压缩逻辑
 │       ├── data.py             # 数据读取
+│       ├── sc_pyramidkv.py     # 改进版 SC-PyramidKV 算法
 │       └── modeling.py         # 模型和 tokenizer 加载
 ├── results/                    # CPU 实验结果
-└── results_4090/               # RTX 4090 实验结果
+├── results_4090/               # RTX 4090 个人复现实验结果
+└── results_sc/                 # SC-PyramidKV 结果，运行后生成
 ```
 
 ---
